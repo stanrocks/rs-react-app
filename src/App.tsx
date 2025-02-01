@@ -1,14 +1,20 @@
 import React, { Component } from 'react';
-import SearchInput from '../components/SearchInput.tsx';
+import SearchInput from './components/SearchInput.tsx';
+import { stapiService } from './services/stapiService';
+import { StapiCharacter } from './types/stapi';
 import './App.css';
 
 interface SearchState {
   searchTerm: string;
+  results: StapiCharacter[];
+  error: string | null;
 }
 
 class App extends Component<undefined, SearchState> {
   state: SearchState = {
     searchTerm: '',
+    results: [],
+    error: null,
   };
 
   handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -16,12 +22,21 @@ class App extends Component<undefined, SearchState> {
   };
 
   handleSearch = () => {
-    this.fetchData(this.state.searchTerm.trim());
+    this.fetchData(this.state.searchTerm);
   };
 
-  fetchData = (searchTerm: string) => {
-    // TODO
-    console.log(searchTerm);
+  fetchData = (searchTerm: string = this.state.searchTerm) => {
+    this.setState({ error: null });
+
+    stapiService
+      .searchCharacters(searchTerm)
+      .then((results) => {
+        console.log(results);
+        this.setState({ results });
+      })
+      .catch((error) => {
+        this.setState({ error: error.message });
+      });
   };
 
   render() {
