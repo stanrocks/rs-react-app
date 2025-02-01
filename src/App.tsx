@@ -31,7 +31,6 @@ class App extends Component<undefined, SearchState> {
     stapiService
       .searchCharacters(searchTerm)
       .then((results) => {
-        console.log(results);
         this.setState({ results });
       })
       .catch((error) => {
@@ -50,6 +49,22 @@ class App extends Component<undefined, SearchState> {
           onSearchChange={this.handleSearchChange}
           onSearch={this.handleSearch}
         />
+        {this.state.results.map((character) => (
+          <p key={character.uid}>
+            {Object.keys(character).map((key) => {
+              if (key !== 'uid') {
+                const spanKey = `${character.uid}-${key}`;
+                return (
+                  <span key={spanKey}>
+                    {key}: {character[key as keyof StapiCharacter]}
+                    <br />
+                  </span>
+                );
+              }
+              return null;
+            })}
+          </p>
+        ))}
       </div>
     );
   }

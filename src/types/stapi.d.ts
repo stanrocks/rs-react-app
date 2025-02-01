@@ -1,4 +1,5 @@
 export interface StapiCharacter {
+  uid: string;
   name: string;
   gender?: string;
   deceased?: boolean;
