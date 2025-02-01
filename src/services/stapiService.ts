@@ -31,7 +31,28 @@ async function searchCharacters(term: string): Promise<StapiCharacter[]> {
     }
     console.log('response: ', response);
     console.log('response status: ', response.status);
-    return data.characters;
+
+    console.log('Raw data: ', data);
+    console.log('Raw characters: ', data.characters);
+
+    function removeNullOrFalse<T extends object>(obj: T): Partial<T> {
+      return Object.keys(obj).reduce((acc: Partial<T>, key: string) => {
+        const value = obj[key as keyof T];
+        if (value !== null && value !== false && value !== undefined) {
+          acc[key as keyof T] = value;
+        }
+        return acc;
+      }, {} as Partial<T>);
+    }
+
+    const transformedCharacters = data.characters.map(
+      (character: StapiCharacter) => {
+        return removeNullOrFalse(character);
+      }
+    );
+
+    console.log('Transformed characters: ', transformedCharacters);
+    return transformedCharacters;
   } catch (error: unknown) {
     console.error('Error fetching from STAPI:', error);
     throw error;
