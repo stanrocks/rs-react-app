@@ -1,61 +1,81 @@
 import { StapiCharacter } from '../types/stapi';
+import { SearchItems } from '../types/searchItems';
+
+interface Result<T> {
+  data?: T;
+  error?: Error;
+}
 
 const STAPI_BASE_URL = 'https://stapi.co/api/v1/rest/character/search';
 
-async function searchCharacters(term: string): Promise<StapiCharacter[]> {
-  let url: string;
-  let method: string = 'GET';
-
+function buildStapiFetchConfig(term: string): [string, string] {
   if (term.trim() === '') {
-    url = `${STAPI_BASE_URL}?pageNumber=0`;
+    return [`${STAPI_BASE_URL}?pageNumber=0`, `GET`];
   } else {
-    url = `${STAPI_BASE_URL}?name=${term.trim()}`;
-    method = 'POST';
+    return [`${STAPI_BASE_URL}?name=${term.trim()}`, `POST`];
   }
+}
 
-  console.log('url: ', url);
+function transformCharactersData(characters: StapiCharacter[]): SearchItems {
+  return characters.map((character: StapiCharacter) => {
+    const { uid, name, ...rest } = character;
+
+    const descriptionParts: string[] = [];
+    for (const key in rest) {
+      if (Object.prototype.hasOwnProperty.call(rest, key)) {
+        const value = rest[key as keyof typeof rest];
+        if (typeof value === 'boolean') {
+          if (value) {
+            descriptionParts.push(key);
+          }
+        } else if (value !== undefined && value !== null) {
+          descriptionParts.push(`${key}: ${value}`);
+        }
+      }
+    }
+
+    const description = descriptionParts.join(', ');
+
+    return {
+      uid,
+      name,
+      description,
+    };
+  });
+}
+
+async function searchCharacters(term: string): Promise<Result<SearchItems>> {
+  const [url, method] = buildStapiFetchConfig(term);
 
   try {
     const response = await fetch(url, { method });
-
     if (!response.ok) {
-      throw new Error(
-        `HTTP error! Response status: ${response.status}, error message: ${response.statusText}`
-      );
+      console.log('HTTP error! Status: ', response.status);
+      throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
     const data = await response.json();
 
     if (!data.characters || !Array.isArray(data.characters)) {
-      throw new Error('Invalid data format received from STAPI.');
+      throw new Error('Invalid data from STAPI.');
     }
-    console.log('response: ', response);
-    console.log('response status: ', response.status);
+    // console.log('response: ', response);
+    // console.log('response status: ', response.status);
 
-    console.log('Raw data: ', data);
-    console.log('Raw characters: ', data.characters);
+    // console.log('Raw data: ', data);
+    // console.log('Raw characters: ', data.characters);
 
-    function removeNullOrFalse<T extends object>(obj: T): Partial<T> {
-      return Object.keys(obj).reduce((acc: Partial<T>, key: string) => {
-        const value = obj[key as keyof T];
-        if (value !== null && value !== false && value !== undefined) {
-          acc[key as keyof T] = value;
-        }
-        return acc;
-      }, {} as Partial<T>);
-    }
-
-    const transformedCharacters = data.characters.map(
-      (character: StapiCharacter) => {
-        return removeNullOrFalse(character);
-      }
-    );
-
-    console.log('Transformed characters: ', transformedCharacters);
-    return transformedCharacters;
+    const transformedCharacters = transformCharactersData(data.characters);
+    // console.log('transformedCharacters: ', transformedCharacters);
+    return { data: transformedCharacters };
   } catch (error: unknown) {
-    console.error('Error fetching from STAPI:', error);
-    throw error;
+    if (error instanceof Error) {
+      console.log('Error: ', error);
+      return { error };
+    } else {
+      console.log('An unknown error occurred');
+      return { error: new Error('An unknown error occurred') };
+    }
   }
 }
 

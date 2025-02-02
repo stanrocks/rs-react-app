@@ -1,19 +1,20 @@
 import React, { Component } from 'react';
 import SearchInput from './components/SearchInput.tsx';
+import SearchResult from './components/SearchResults.tsx';
 import { stapiService } from './services/stapiService';
-import { StapiCharacter } from './types/stapi';
+import { SearchItems } from './types/searchItems';
 import './App.css';
 
 interface SearchState {
   searchTerm: string;
-  results: StapiCharacter[];
+  results: SearchItems;
   error: string | null;
 }
 
-class App extends Component<undefined, SearchState> {
+class App extends Component<Record<string, never>, SearchState> {
   state: SearchState = {
     searchTerm: '',
-    results: [],
+    results: [] as SearchItems,
     error: null,
   };
 
@@ -28,14 +29,14 @@ class App extends Component<undefined, SearchState> {
   fetchData = (searchTerm: string = this.state.searchTerm) => {
     this.setState({ error: null });
 
-    stapiService
-      .searchCharacters(searchTerm)
-      .then((results) => {
-        this.setState({ results });
-      })
-      .catch((error) => {
-        this.setState({ error: error.message });
-      });
+    stapiService.searchCharacters(searchTerm).then((apiResult) => {
+      if (apiResult.data) {
+        this.setState({ results: apiResult.data });
+      } else if (apiResult.error) {
+        console.log(apiResult.error);
+        this.setState({ error: apiResult.error.message });
+      }
+    });
   };
 
   render() {
@@ -49,22 +50,8 @@ class App extends Component<undefined, SearchState> {
           onSearchChange={this.handleSearchChange}
           onSearch={this.handleSearch}
         />
-        {this.state.results.map((character) => (
-          <p key={character.uid}>
-            {Object.keys(character).map((key) => {
-              if (key !== 'uid') {
-                const spanKey = `${character.uid}-${key}`;
-                return (
-                  <span key={spanKey}>
-                    {key}: {character[key as keyof StapiCharacter]}
-                    <br />
-                  </span>
-                );
-              }
-              return null;
-            })}
-          </p>
-        ))}
+        <SearchResult items={this.state.results} />
+        {/* TODO - button to induce error */}
       </div>
     );
   }
