@@ -16,10 +16,20 @@ class SearchInput extends Component<SearchInputProps> {
     const { searchTerm, onSearchChange } = this.props;
 
     return (
-      <form onSubmit={this.handleSubmit}>
-        <input type="text" value={searchTerm} onChange={onSearchChange} />
-        <button type="submit">Search</button>
-      </form>
+      <header className="search-header">
+        <h1>Star Trek Characters Search App</h1>
+        <form className="search-header-form" onSubmit={this.handleSubmit}>
+          <input
+            className="search-header-field"
+            type="text"
+            value={searchTerm}
+            onChange={onSearchChange}
+          />
+          <button className="search-header-button" type="submit">
+            Search
+          </button>
+        </form>
+      </header>
     );
   }
 }

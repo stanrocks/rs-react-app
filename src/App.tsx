@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import SearchInput from './components/SearchInput.tsx';
-import SearchResult from './components/SearchResults.tsx';
+import SearchResults from './components/SearchResults.tsx';
 import { stapiService } from './services/stapiService';
 import { SearchItems } from './types/searchItems';
 import './App.css';
@@ -77,20 +77,23 @@ class App extends Component<Record<string, never>, SearchState> {
     }
 
     return (
-      <div>
-        <h1>Star Trek Characters Search App</h1>
+      <>
         <SearchInput
           searchTerm={searchTerm}
           onSearchChange={this.handleSearchChange}
           onSearch={this.handleSearch}
         />
-        <SearchResult
+        <SearchResults
           items={this.state.results}
           loading={loading}
           error={error}
         />
-        <button onClick={this.handleCrash}>Crash the whole app!</button>
-      </div>
+        <footer className="footer">
+          <button className="button-danger" onClick={this.handleCrash}>
+            Crash the whole app!
+          </button>
+        </footer>
+      </>
     );
   }
 }

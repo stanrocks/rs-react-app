@@ -9,10 +9,10 @@ class Card extends Component<CardProps> {
   render() {
     const { name, description } = this.props.item;
     return (
-      <>
-        <p>{name}</p>
-        <p>{description}</p>
-      </>
+      <tr className="card-section">
+        <td className="card-section-name">{name}</td>
+        <td className="card-section-description">{description}</td>
+      </tr>
     );
   }
 }
