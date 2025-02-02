@@ -8,6 +8,16 @@ interface Result<T> {
 
 const STAPI_BASE_URL = 'https://stapi.co/api/v1/rest/character/search';
 
+export class HTTPError extends Error {
+  public status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = 'HTTPError';
+    this.status = status;
+  }
+}
+
 function buildStapiFetchConfig(term: string): [string, string] {
   if (term.trim() === '') {
     return [`${STAPI_BASE_URL}?pageNumber=0`, `GET`];
@@ -51,7 +61,10 @@ async function searchCharacters(term: string): Promise<Result<SearchItems>> {
     const response = await fetch(url, { method });
     if (!response.ok) {
       console.log('HTTP error! Status: ', response.status);
-      throw new Error(`HTTP error! Status: ${response.status}`);
+      throw new HTTPError(
+        `HTTP error! Message: ${response.statusText}`,
+        response.status
+      );
     }
 
     const data = await response.json();
@@ -69,12 +82,16 @@ async function searchCharacters(term: string): Promise<Result<SearchItems>> {
     // console.log('transformedCharacters: ', transformedCharacters);
     return { data: transformedCharacters };
   } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.log('Error: ', error);
+    if (error instanceof HTTPError) {
+      console.error('HTTP Error in search: ', error.message, error.status);
+      return { error };
+    } else if (error instanceof Error) {
+      console.error('Non-HTTP Error in search: ', error.message);
       return { error };
     } else {
-      console.log('An unknown error occurred');
-      return { error: new Error('An unknown error occurred') };
+      const unknownError = new Error('An unknown error occurred');
+      console.error('An unknown Error in search: ', unknownError);
+      return { error: unknownError };
     }
   }
 }

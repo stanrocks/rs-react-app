@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import CardList from './CardList';
 import { SearchItems } from '../types/searchItems';
+import { HTTPError } from '../services/stapiService';
 
 interface SearchResultsProps {
   items: SearchItems;
   loading: boolean;
-  error: string | null;
+  error: string | HTTPError | null;
 }
 
 class SearchResult extends Component<SearchResultsProps> {
@@ -15,9 +16,16 @@ class SearchResult extends Component<SearchResultsProps> {
       <>
         <h2>Results</h2>
         {loading && <p>Loading...</p>}
-        {error && <p>Error: {this.props.error}</p>}
-        {items?.length === 0 && !loading && !error && <p>No results found</p>}
-        {items?.length > 0 && !loading && !error && <CardList items={items} />}
+        {error && (
+          <p>
+            Error: {error instanceof Error ? error.message : error}
+            {error instanceof Error &&
+              error.status &&
+              ` (Status: ${error.status})`}
+          </p>
+        )}
+        {!loading && !error && items?.length === 0 && <p>No results found</p>}
+        {!loading && !error && items?.length > 0 && <CardList items={items} />}
       </>
     );
   }

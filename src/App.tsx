@@ -3,6 +3,7 @@ import SearchInput from './components/SearchInput.tsx';
 import SearchResult from './components/SearchResults.tsx';
 import { stapiService } from './services/stapiService';
 import { SearchItems } from './types/searchItems';
+import { HTTPError } from './services/stapiService';
 import './App.css';
 
 interface SearchState {
@@ -38,8 +39,16 @@ class App extends Component<Record<string, never>, SearchState> {
         if (apiResult.data) {
           this.setState({ results: apiResult.data });
         } else if (apiResult.error) {
-          console.log(apiResult.error);
-          this.setState({ error: apiResult.error.message });
+          console.log('API Result Error: ', apiResult.error);
+          if (apiResult.error instanceof HTTPError) {
+            console.log('HTTP Error Status: ', apiResult.error.status);
+            this.setState({
+              error: `Error: ${apiResult.error.message} (Status: ${apiResult.error.status})`,
+              loading: false,
+            });
+          } else {
+            this.setState({ error: apiResult.error.message, loading: false });
+          }
         }
       })
       .catch(() => {
