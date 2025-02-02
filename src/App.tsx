@@ -9,6 +9,7 @@ interface SearchState {
   searchTerm: string;
   results: SearchItems;
   error: string | null;
+  loading: boolean;
 }
 
 class App extends Component<Record<string, never>, SearchState> {
@@ -16,6 +17,7 @@ class App extends Component<Record<string, never>, SearchState> {
     searchTerm: '',
     results: [] as SearchItems,
     error: null,
+    loading: false,
   };
 
   handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -27,20 +29,26 @@ class App extends Component<Record<string, never>, SearchState> {
   };
 
   fetchData = (searchTerm: string = this.state.searchTerm) => {
-    this.setState({ error: null });
+    this.setState({ error: null, loading: true });
 
-    stapiService.searchCharacters(searchTerm).then((apiResult) => {
-      if (apiResult.data) {
-        this.setState({ results: apiResult.data });
-      } else if (apiResult.error) {
-        console.log(apiResult.error);
-        this.setState({ error: apiResult.error.message });
-      }
-    });
+    stapiService
+      .searchCharacters(searchTerm)
+      .then((apiResult) => {
+        this.setState({ loading: false });
+        if (apiResult.data) {
+          this.setState({ results: apiResult.data });
+        } else if (apiResult.error) {
+          console.log(apiResult.error);
+          this.setState({ error: apiResult.error.message });
+        }
+      })
+      .catch(() => {
+        this.setState({ loading: false, error: 'An error occurred' });
+      });
   };
 
   render() {
-    const { searchTerm } = this.state;
+    const { searchTerm, loading, error } = this.state;
 
     return (
       <div>
@@ -50,7 +58,11 @@ class App extends Component<Record<string, never>, SearchState> {
           onSearchChange={this.handleSearchChange}
           onSearch={this.handleSearch}
         />
-        <SearchResult items={this.state.results} />
+        <SearchResult
+          items={this.state.results}
+          loading={loading}
+          error={error}
+        />
         {/* TODO - button to induce error */}
       </div>
     );
