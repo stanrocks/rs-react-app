@@ -3,20 +3,10 @@ import { SearchItems } from '../types/searchItems';
 
 interface Result<T> {
   data?: T;
-  error?: Error;
+  error?: { message: string; status?: number };
 }
 
 const STAPI_BASE_URL = 'https://stapi.co/api/v1/rest/character/search';
-
-export class HTTPError extends Error {
-  public status: number;
-
-  constructor(message: string, status: number) {
-    super(message);
-    this.name = 'HTTPError';
-    this.status = status;
-  }
-}
 
 function buildStapiFetchConfig(term: string): [string, string] {
   if (term.trim() === '') {
@@ -61,16 +51,18 @@ async function searchCharacters(term: string): Promise<Result<SearchItems>> {
     const response = await fetch(url, { method });
     if (!response.ok) {
       console.log('HTTP error! Status: ', response.status);
-      throw new HTTPError(
-        `HTTP error! Message: ${response.statusText}`,
-        response.status
-      );
+      return {
+        error: {
+          message: `HTTP error! Message: ${response.statusText}`,
+          status: response.status,
+        },
+      };
     }
 
     const data = await response.json();
 
     if (!data.characters || !Array.isArray(data.characters)) {
-      throw new Error('Invalid data from STAPI.');
+      return { error: { message: 'Invalid data from STAPI.' } };
     }
     // console.log('response: ', response);
     // console.log('response status: ', response.status);
@@ -82,16 +74,11 @@ async function searchCharacters(term: string): Promise<Result<SearchItems>> {
     // console.log('transformedCharacters: ', transformedCharacters);
     return { data: transformedCharacters };
   } catch (error: unknown) {
-    if (error instanceof HTTPError) {
-      console.error('HTTP Error in search: ', error.message, error.status);
-      return { error };
-    } else if (error instanceof Error) {
+    if (error instanceof Error) {
       console.error('Non-HTTP Error in search: ', error.message);
-      return { error };
+      return { error: { message: error.message } };
     } else {
-      const unknownError = new Error('An unknown error occurred');
-      console.error('An unknown Error in search: ', unknownError);
-      return { error: unknownError };
+      return { error: { message: 'An unknown error occurred' } };
     }
   }
 }

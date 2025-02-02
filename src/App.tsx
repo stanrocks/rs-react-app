@@ -3,13 +3,12 @@ import SearchInput from './components/SearchInput.tsx';
 import SearchResult from './components/SearchResults.tsx';
 import { stapiService } from './services/stapiService';
 import { SearchItems } from './types/searchItems';
-import { HTTPError } from './services/stapiService';
 import './App.css';
 
 interface SearchState {
   searchTerm: string;
   results: SearchItems;
-  error: string | null;
+  error: { message: string; status?: number } | null;
   loading: boolean;
 }
 
@@ -40,19 +39,18 @@ class App extends Component<Record<string, never>, SearchState> {
           this.setState({ results: apiResult.data });
         } else if (apiResult.error) {
           console.log('API Result Error: ', apiResult.error);
-          if (apiResult.error instanceof HTTPError) {
+          if (apiResult.error) {
             console.log('HTTP Error Status: ', apiResult.error.status);
-            this.setState({
-              error: `Error: ${apiResult.error.message} (Status: ${apiResult.error.status})`,
-              loading: false,
-            });
-          } else {
-            this.setState({ error: apiResult.error.message, loading: false });
+            this.setState({ error: apiResult.error });
           }
         }
       })
-      .catch(() => {
-        this.setState({ loading: false, error: 'An error occurred' });
+      .catch((error) => {
+        console.error('Fetch error:', error);
+        this.setState({
+          loading: false,
+          error: { message: 'Fetch error occurred' },
+        });
       });
   };
 
