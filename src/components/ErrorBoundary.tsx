@@ -32,6 +32,7 @@ class ErrorBoundary extends React.Component<
             <br />
             {this.state.errorInfo.componentStack}
           </p>
+          <button onClick={() => window.location.reload()}>Reload App</button>
         </div>
       );
     }
