@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import CardList from './CardList';
 import { SearchItems } from '../types/searchItems';
 

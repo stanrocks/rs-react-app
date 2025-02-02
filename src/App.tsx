@@ -27,7 +27,7 @@ class App extends Component<Record<string, never>, SearchState> {
   }
 
   componentDidUpdate(
-    prevProps: Readonly<Record<string, never>>,
+    _prevProps: Record<string, never>,
     prevState: Readonly<SearchState>
   ) {
     if (prevState.searchTerm !== this.state.searchTerm) {
