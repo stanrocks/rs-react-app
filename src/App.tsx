@@ -10,6 +10,7 @@ interface SearchState {
   results: SearchItems;
   error: { message: string; status?: number } | null;
   loading: boolean;
+  shouldCrash: boolean;
 }
 
 class App extends Component<Record<string, never>, SearchState> {
@@ -18,6 +19,7 @@ class App extends Component<Record<string, never>, SearchState> {
     results: [] as SearchItems,
     error: null,
     loading: false,
+    shouldCrash: false,
   };
 
   componentDidMount() {
@@ -67,8 +69,16 @@ class App extends Component<Record<string, never>, SearchState> {
       });
   };
 
+  handleCrash = () => {
+    this.setState({ shouldCrash: true });
+  };
+
   render() {
-    const { searchTerm, loading, error } = this.state;
+    const { searchTerm, loading, error, shouldCrash } = this.state;
+
+    if (shouldCrash) {
+      throw new Error('I crashed!');
+    }
 
     return (
       <div>
@@ -83,7 +93,7 @@ class App extends Component<Record<string, never>, SearchState> {
           loading={loading}
           error={error}
         />
-        {/* TODO - button to induce error */}
+        <button onClick={this.handleCrash}>Crash the whole app!</button>
       </div>
     );
   }
