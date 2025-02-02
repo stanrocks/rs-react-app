@@ -43,6 +43,10 @@ class App extends Component<Record<string, never>, SearchState> {
     this.fetchData(this.state.searchTerm);
   };
 
+  handleCrash = () => {
+    this.setState({ shouldCrash: true });
+  };
+
   fetchData = (searchTerm: string = this.state.searchTerm) => {
     this.setState({ error: null, loading: true });
 
@@ -53,11 +57,7 @@ class App extends Component<Record<string, never>, SearchState> {
         if (apiResult.data) {
           this.setState({ results: apiResult.data });
         } else if (apiResult.error) {
-          console.log('API Result Error: ', apiResult.error);
-          if (apiResult.error) {
-            console.log('HTTP Error Status: ', apiResult.error.status);
-            this.setState({ error: apiResult.error });
-          }
+          this.setState({ error: apiResult.error });
         }
       })
       .catch((error) => {
@@ -69,10 +69,6 @@ class App extends Component<Record<string, never>, SearchState> {
       });
   };
 
-  handleCrash = () => {
-    this.setState({ shouldCrash: true });
-  };
-
   render() {
     const { searchTerm, loading, error, shouldCrash } = this.state;
 
@@ -82,7 +78,7 @@ class App extends Component<Record<string, never>, SearchState> {
 
     return (
       <div>
-        <h1>Search App</h1>
+        <h1>Star Trek Characters Search App</h1>
         <SearchInput
           searchTerm={searchTerm}
           onSearchChange={this.handleSearchChange}

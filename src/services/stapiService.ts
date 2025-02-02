@@ -64,14 +64,9 @@ async function searchCharacters(term: string): Promise<Result<SearchItems>> {
     if (!data.characters || !Array.isArray(data.characters)) {
       return { error: { message: 'Invalid data from STAPI.' } };
     }
-    // console.log('response: ', response);
-    // console.log('response status: ', response.status);
-
-    // console.log('Raw data: ', data);
-    // console.log('Raw characters: ', data.characters);
 
     const transformedCharacters = transformCharactersData(data.characters);
-    // console.log('transformedCharacters: ', transformedCharacters);
+
     return { data: transformedCharacters };
   } catch (error: unknown) {
     if (error instanceof Error) {
