@@ -14,11 +14,24 @@ interface SearchState {
 
 class App extends Component<Record<string, never>, SearchState> {
   state: SearchState = {
-    searchTerm: '',
+    searchTerm: localStorage.getItem('searchTerm') || '',
     results: [] as SearchItems,
     error: null,
     loading: false,
   };
+
+  componentDidMount() {
+    this.fetchData();
+  }
+
+  componentDidUpdate(
+    prevProps: Readonly<Record<string, never>>,
+    prevState: Readonly<SearchState>
+  ) {
+    if (prevState.searchTerm !== this.state.searchTerm) {
+      localStorage.setItem('searchTerm', this.state.searchTerm);
+    }
+  }
 
   handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ searchTerm: event.target.value });
