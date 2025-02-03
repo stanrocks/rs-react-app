@@ -26,20 +26,12 @@ class App extends Component<Record<string, never>, SearchState> {
     this.fetchData();
   }
 
-  componentDidUpdate(
-    _prevProps: Record<string, never>,
-    prevState: Readonly<SearchState>
-  ) {
-    if (prevState.searchTerm !== this.state.searchTerm) {
-      localStorage.setItem('searchTerm', this.state.searchTerm);
-    }
-  }
-
   handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ searchTerm: event.target.value });
   };
 
   handleSearch = () => {
+    localStorage.setItem('searchTerm', this.state.searchTerm);
     this.fetchData(this.state.searchTerm);
   };
 
