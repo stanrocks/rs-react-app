@@ -79,3 +79,23 @@
   display: flex;
   justify-content: flex-end;
 }
+
+.pagination {
+  display: flex;
+  gap: 0.5em;
+  list-style: none;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pagination-item-button.active {
+  /* Styles for the active pagination item */
+  background-color: rgba(
+    94,
+    94,
+    94,
+    0.9
+  ); /* Example: highlight the active item */
+  color: white;
+  /* ... other styles ... */
+}

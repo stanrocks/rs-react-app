@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router';
 import SearchInput from './components/SearchInput.tsx';
 import SearchResults from './components/SearchResults.tsx';
+import Pagination from './components/Pagination.tsx';
 import { stapiService } from './services/stapiService';
 import { SearchItems } from './types/searchItems';
 import { useRestoreSearchQuery } from './hooks/useRestoreSearchQuery';
@@ -12,6 +14,8 @@ interface SearchState {
   error: { message: string; status?: number } | null;
   loading: boolean;
   shouldCrash: boolean;
+  currentPage: number;
+  totalPages: number;
 }
 
 interface FormState {
@@ -19,6 +23,7 @@ interface FormState {
 }
 
 const App: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const restoredSearchTerm = useRestoreSearchQuery();
 
   const [searchState, setSearchState] = useState<SearchState>({
@@ -27,13 +32,21 @@ const App: React.FC = () => {
     error: null,
     loading: false,
     shouldCrash: false,
+    currentPage: Number(searchParams.get('page')) || 1,
+    totalPages: 0,
   });
 
   const [formState, setFormState] = useState<FormState>({
     searchInputValue: restoredSearchTerm,
   });
 
-  const fetchData = (searchTerm: string) => {
+  useEffect(() => {
+    if (!searchParams.get('search') || !searchParams.get('page')) {
+      setSearchParams({ search: restoredSearchTerm, page: '1' });
+    }
+  }, [restoredSearchTerm, searchParams, setSearchParams]);
+
+  const fetchData = (searchTerm: string, page: number) => {
     setSearchState((prevState) => ({
       ...prevState,
       error: null,
@@ -41,13 +54,14 @@ const App: React.FC = () => {
     }));
 
     stapiService
-      .searchCharacters(searchTerm)
+      .searchCharacters(searchTerm, page)
       .then((apiResult) => {
         setSearchState((prevState) => ({
           ...prevState,
           loading: false,
           results: apiResult.data || [],
           error: apiResult.error || null,
+          totalPages: apiResult.totalPages || 0,
         }));
       })
       .catch((error) => {
@@ -61,19 +75,27 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchData(searchState.searchTerm);
-  }, [searchState.searchTerm]);
+    fetchData(searchState.searchTerm, searchState.currentPage);
+  }, [searchState.searchTerm, searchState.currentPage]);
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFormState({ searchInputValue: event.target.value });
   };
 
   const handleSearch = () => {
-    localStorage.setItem('searchTerm', formState.searchInputValue);
+    const searchTerm = formState.searchInputValue;
+    localStorage.setItem('searchTerm', searchTerm);
+    setSearchParams({ search: searchTerm, page: '1' });
     setSearchState((prevState) => ({
       ...prevState,
-      searchTerm: formState.searchInputValue,
+      searchTerm: searchTerm,
+      currentPage: 1,
     }));
+  };
+
+  const handlePageChange = (page: number) => {
+    setSearchParams({ search: searchState.searchTerm, page: page.toString() });
+    setSearchState((prevState) => ({ ...prevState, currentPage: page }));
   };
 
   const handleCrash = () => {
@@ -94,7 +116,13 @@ const App: React.FC = () => {
         onSearch={handleSearch}
       />
       <SearchResults items={results} loading={loading} error={error} />
+
       <footer className="footer">
+        <Pagination
+          currentPage={searchState.currentPage}
+          totalPages={searchState.totalPages}
+          onPageChange={handlePageChange}
+        />
         <button className="button-danger" onClick={handleCrash}>
           Crash the whole app!
         </button>

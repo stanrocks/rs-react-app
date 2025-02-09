@@ -4,15 +4,22 @@ import { SearchItems } from '../types/searchItems';
 interface Result<T> {
   data?: T;
   error?: { message: string; status?: number };
+  totalPages?: number;
 }
 
 const STAPI_BASE_URL = 'https://stapi.co/api/v1/rest/character/search';
 
-function buildStapiFetchConfig(term: string): [string, string] {
+function buildStapiFetchConfig(
+  term: string,
+  pageNumber: number
+): [string, string] {
   if (term.trim() === '') {
     return [`${STAPI_BASE_URL}?pageNumber=0`, `GET`];
   } else {
-    return [`${STAPI_BASE_URL}?name=${term.trim()}`, `POST`];
+    return [
+      `${STAPI_BASE_URL}?name=${term.trim()}&pageNumber=${pageNumber - 1}`,
+      `POST`,
+    ];
   }
 }
 
@@ -44,8 +51,11 @@ function transformCharactersData(characters: StapiCharacter[]): SearchItems {
   });
 }
 
-async function searchCharacters(term: string): Promise<Result<SearchItems>> {
-  const [url, method] = buildStapiFetchConfig(term);
+async function searchCharacters(
+  term: string,
+  pageNumber: number
+): Promise<Result<SearchItems>> {
+  const [url, method] = buildStapiFetchConfig(term, pageNumber);
 
   try {
     const response = await fetch(url, { method });
@@ -66,8 +76,9 @@ async function searchCharacters(term: string): Promise<Result<SearchItems>> {
     }
 
     const transformedCharacters = transformCharactersData(data.characters);
+    const totalPages = data.page.totalPages || 0;
 
-    return { data: transformedCharacters };
+    return { data: transformedCharacters, totalPages };
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error('Non-HTTP Error in search: ', error.message);
