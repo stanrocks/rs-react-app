@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 
 interface SearchInputProps {
   searchTerm: string;
@@ -6,32 +6,32 @@ interface SearchInputProps {
   onSearch: () => void;
 }
 
-class SearchInput extends Component<SearchInputProps> {
-  handleSubmit = (event: React.FormEvent) => {
+const SearchInput: React.FC<SearchInputProps> = ({
+  searchTerm,
+  onSearchChange,
+  onSearch,
+}) => {
+  const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    this.props.onSearch();
+    onSearch();
   };
 
-  render() {
-    const { searchTerm, onSearchChange } = this.props;
-
-    return (
-      <header className="search-header">
-        <h1>Star Trek Characters Search App</h1>
-        <form className="search-header-form" onSubmit={this.handleSubmit}>
-          <input
-            className="search-header-field"
-            type="text"
-            value={searchTerm}
-            onChange={onSearchChange}
-          />
-          <button className="search-header-button" type="submit">
-            Search
-          </button>
-        </form>
-      </header>
-    );
-  }
-}
+  return (
+    <header className="search-header">
+      <h1>Star Trek Characters Search App</h1>
+      <form className="search-header-form" onSubmit={handleSubmit}>
+        <input
+          className="search-header-field"
+          type="text"
+          value={searchTerm}
+          onChange={onSearchChange}
+        />
+        <button className="search-header-button" type="submit">
+          Search
+        </button>
+      </form>
+    </header>
+  );
+};
 
 export default SearchInput;

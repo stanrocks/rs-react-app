@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import SearchInput from './components/SearchInput.tsx';
 import SearchResults from './components/SearchResults.tsx';
 import { stapiService } from './services/stapiService';
@@ -13,81 +13,76 @@ interface SearchState {
   shouldCrash: boolean;
 }
 
-class App extends Component<Record<string, never>, SearchState> {
-  state: SearchState = {
+const App: React.FC = () => {
+  const [state, setState] = useState<SearchState>({
     searchTerm: localStorage.getItem('searchTerm') || '',
     results: [] as SearchItems,
     error: null,
     loading: false,
     shouldCrash: false,
+  });
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setState({ ...state, searchTerm: event.target.value });
   };
 
-  componentDidMount() {
-    this.fetchData();
-  }
-
-  handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ searchTerm: event.target.value });
+  const handleSearch = () => {
+    localStorage.setItem('searchTerm', state.searchTerm);
+    fetchData(state.searchTerm);
   };
 
-  handleSearch = () => {
-    localStorage.setItem('searchTerm', this.state.searchTerm);
-    this.fetchData(this.state.searchTerm);
+  const handleCrash = () => {
+    setState({ ...state, shouldCrash: true });
   };
 
-  handleCrash = () => {
-    this.setState({ shouldCrash: true });
-  };
-
-  fetchData = (searchTerm: string = this.state.searchTerm) => {
-    this.setState({ error: null, loading: true });
+  const fetchData = (searchTerm: string = state.searchTerm) => {
+    setState({ ...state, error: null, loading: true });
 
     stapiService
       .searchCharacters(searchTerm)
       .then((apiResult) => {
-        this.setState({ loading: false });
+        setState({ ...state, loading: false });
         if (apiResult.data) {
-          this.setState({ results: apiResult.data });
+          setState({ ...state, results: apiResult.data });
         } else if (apiResult.error) {
-          this.setState({ error: apiResult.error });
+          setState({ ...state, error: apiResult.error });
         }
       })
       .catch((error) => {
         console.error('Fetch error:', error);
-        this.setState({
+        setState({
+          ...state,
           loading: false,
           error: { message: 'Fetch error occurred' },
         });
       });
   };
 
-  render() {
-    const { searchTerm, loading, error, shouldCrash } = this.state;
+  const { searchTerm, loading, error, shouldCrash, results } = state;
 
-    if (shouldCrash) {
-      throw new Error('I crashed!');
-    }
-
-    return (
-      <>
-        <SearchInput
-          searchTerm={searchTerm}
-          onSearchChange={this.handleSearchChange}
-          onSearch={this.handleSearch}
-        />
-        <SearchResults
-          items={this.state.results}
-          loading={loading}
-          error={error}
-        />
-        <footer className="footer">
-          <button className="button-danger" onClick={this.handleCrash}>
-            Crash the whole app!
-          </button>
-        </footer>
-      </>
-    );
+  if (shouldCrash) {
+    throw new Error('I crashed!');
   }
-}
+
+  return (
+    <>
+      <SearchInput
+        searchTerm={searchTerm}
+        onSearchChange={handleSearchChange}
+        onSearch={handleSearch}
+      />
+      <SearchResults items={results} loading={loading} error={error} />
+      <footer className="footer">
+        <button className="button-danger" onClick={handleCrash}>
+          Crash the whole app!
+        </button>
+      </footer>
+    </>
+  );
+};
 
 export default App;
