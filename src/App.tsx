@@ -3,6 +3,7 @@ import SearchInput from './components/SearchInput.tsx';
 import SearchResults from './components/SearchResults.tsx';
 import { stapiService } from './services/stapiService';
 import { SearchItems } from './types/searchItems';
+import { useRestoreSearchQuery } from './hooks/useRestoreSearchQuery';
 import './App.css';
 
 interface SearchState {
@@ -18,8 +19,10 @@ interface FormState {
 }
 
 const App: React.FC = () => {
+  const restoredSearchTerm = useRestoreSearchQuery();
+
   const [searchState, setSearchState] = useState<SearchState>({
-    searchTerm: localStorage.getItem('searchTerm') || '',
+    searchTerm: restoredSearchTerm,
     results: [] as SearchItems,
     error: null,
     loading: false,
@@ -27,7 +30,7 @@ const App: React.FC = () => {
   });
 
   const [formState, setFormState] = useState<FormState>({
-    searchInputValue: localStorage.getItem('searchTerm') || '',
+    searchInputValue: restoredSearchTerm,
   });
 
   const fetchData = (searchTerm: string) => {
