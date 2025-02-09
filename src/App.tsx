@@ -13,8 +13,12 @@ interface SearchState {
   shouldCrash: boolean;
 }
 
+interface FormState {
+  searchInputValue: string;
+}
+
 const App: React.FC = () => {
-  const [state, setState] = useState<SearchState>({
+  const [searchState, setSearchState] = useState<SearchState>({
     searchTerm: localStorage.getItem('searchTerm') || '',
     results: [] as SearchItems,
     error: null,
@@ -22,47 +26,58 @@ const App: React.FC = () => {
     shouldCrash: false,
   });
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const [formState, setFormState] = useState<FormState>({
+    searchInputValue: localStorage.getItem('searchTerm') || '',
+  });
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setState({ ...state, searchTerm: event.target.value });
-  };
-
-  const handleSearch = () => {
-    localStorage.setItem('searchTerm', state.searchTerm);
-    fetchData(state.searchTerm);
-  };
-
-  const handleCrash = () => {
-    setState({ ...state, shouldCrash: true });
-  };
-
-  const fetchData = (searchTerm: string = state.searchTerm) => {
-    setState({ ...state, error: null, loading: true });
+  const fetchData = (searchTerm: string) => {
+    setSearchState((prevState) => ({
+      ...prevState,
+      error: null,
+      loading: true,
+    }));
 
     stapiService
       .searchCharacters(searchTerm)
       .then((apiResult) => {
-        setState({ ...state, loading: false });
-        if (apiResult.data) {
-          setState({ ...state, results: apiResult.data });
-        } else if (apiResult.error) {
-          setState({ ...state, error: apiResult.error });
-        }
+        setSearchState((prevState) => ({
+          ...prevState,
+          loading: false,
+          results: apiResult.data || [],
+          error: apiResult.error || null,
+        }));
       })
       .catch((error) => {
         console.error('Fetch error:', error);
-        setState({
-          ...state,
+        setSearchState((prevState) => ({
+          ...prevState,
           loading: false,
           error: { message: 'Fetch error occurred' },
-        });
+        }));
       });
   };
 
-  const { searchTerm, loading, error, shouldCrash, results } = state;
+  useEffect(() => {
+    fetchData(searchState.searchTerm);
+  }, [searchState.searchTerm]);
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setFormState({ searchInputValue: event.target.value });
+  };
+
+  const handleSearch = () => {
+    localStorage.setItem('searchTerm', formState.searchInputValue);
+    setSearchState((prevState) => ({
+      ...prevState,
+      searchTerm: formState.searchInputValue,
+    }));
+  };
+
+  const handleCrash = () => {
+    setSearchState((prevState) => ({ ...prevState, shouldCrash: true }));
+  };
+
+  const { loading, error, shouldCrash, results } = searchState;
 
   if (shouldCrash) {
     throw new Error('I crashed!');
@@ -71,7 +86,7 @@ const App: React.FC = () => {
   return (
     <>
       <SearchInput
-        searchTerm={searchTerm}
+        searchTerm={formState.searchInputValue}
         onSearchChange={handleSearchChange}
         onSearch={handleSearch}
       />
