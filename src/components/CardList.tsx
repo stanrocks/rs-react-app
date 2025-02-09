@@ -4,9 +4,10 @@ import { SearchItems } from '../types/searchItems';
 
 interface CardListProps {
   items: SearchItems;
+  onClick: (id: string) => void;
 }
 
-const CardList: React.FC<CardListProps> = ({ items }) => {
+const CardList: React.FC<CardListProps> = ({ items, onClick }) => {
   return (
     <table className="card-list">
       <thead className="card-list-header">
@@ -17,7 +18,7 @@ const CardList: React.FC<CardListProps> = ({ items }) => {
       </thead>
       <tbody className="card-list-body">
         {items.map((item) => (
-          <Card key={item.uid} item={item} />
+          <Card key={item.uid} item={item} onClick={() => onClick(item.uid)} />
         ))}
       </tbody>
     </table>

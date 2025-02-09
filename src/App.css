@@ -89,13 +89,42 @@
 }
 
 .pagination-item-button.active {
-  /* Styles for the active pagination item */
-  background-color: rgba(
-    94,
-    94,
-    94,
-    0.9
-  ); /* Example: highlight the active item */
+  background-color: rgba(94, 94, 94, 0.9);
   color: white;
-  /* ... other styles ... */
+}
+
+/* rename: */
+
+.container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.left-panel {
+  flex: 1;
+  padding: 10px;
+}
+
+.split-view .left-panel {
+  flex: 0.6;
+}
+
+.details-panel {
+  flex: 0.4;
+  background: #f8f8f8;
+  padding: 10px;
+  border-left: 1px solid #ccc;
+  position: relative;
+}
+
+.close-button {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  cursor: pointer;
+  background: red;
+  color: white;
+  border: none;
+  padding: 5px;
 }

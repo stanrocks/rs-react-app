@@ -1,4 +1,4 @@
-import { StapiCharacter } from '../types/stapi';
+import { StapiCharacter, CharacterDetails } from '../types/stapi';
 import { SearchItems } from '../types/searchItems';
 
 interface Result<T> {
@@ -7,19 +7,55 @@ interface Result<T> {
   totalPages?: number;
 }
 
-const STAPI_BASE_URL = 'https://stapi.co/api/v1/rest/character/search';
+const STAPI_BASE_URL = 'https://stapi.co/api/v1/rest/character';
 
 function buildStapiFetchConfig(
   term: string,
   pageNumber: number
 ): [string, string] {
-  if (term.trim() === '') {
-    return [`${STAPI_BASE_URL}?pageNumber=0`, `GET`];
-  } else {
-    return [
-      `${STAPI_BASE_URL}?name=${term.trim()}&pageNumber=${pageNumber - 1}`,
-      `POST`,
-    ];
+  if (!term.trim()) {
+    return [`${STAPI_BASE_URL}/search?pageNumber=0`, `GET`];
+  }
+  return [
+    `${STAPI_BASE_URL}/search?name=${term.trim()}&pageNumber=${pageNumber - 1}`,
+    `POST`,
+  ];
+}
+
+async function getCharacterDetails(
+  uid: string
+): Promise<Result<CharacterDetails>> {
+  console.log('🚀 ~ Someone called getCharacterDetails!');
+
+  try {
+    const response = await fetch(`${STAPI_BASE_URL}?uid=${uid}`, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      console.log('HTTP error! Status:', response.status);
+      return {
+        error: {
+          message: `HTTP error! Message: ${response.statusText}`,
+          status: response.status,
+        },
+      };
+    }
+
+    const data = await response.json();
+
+    if (!data.character) {
+      return { error: { message: 'Invalid character data from STAPI.' } };
+    }
+    console.log('🚀 fetched character details:', data.character);
+    return { data: data.character };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('Non-HTTP Error in fetch:', error.message);
+      return { error: { message: error.message } };
+    } else {
+      return { error: { message: 'An unknown error occurred' } };
+    }
   }
 }
 
@@ -91,4 +127,5 @@ async function searchCharacters(
 
 export const stapiService = {
   searchCharacters,
+  getCharacterDetails,
 };

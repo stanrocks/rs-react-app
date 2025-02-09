@@ -7,12 +7,14 @@ interface SearchResultsProps {
   loading: boolean;
   error: { message: string; status?: number } | null;
   className?: string;
+  onItemClick: (id: string) => void;
 }
 
 const SearchResult: React.FC<SearchResultsProps> = ({
   items,
   loading,
   error,
+  onItemClick,
 }) => {
   return (
     <main className="search-results">
@@ -24,7 +26,9 @@ const SearchResult: React.FC<SearchResultsProps> = ({
         </p>
       )}
       {!loading && !error && items?.length === 0 && <p>No results found</p>}
-      {!loading && !error && items?.length > 0 && <CardList items={items} />}
+      {!loading && !error && items?.length > 0 && (
+        <CardList items={items} onClick={onItemClick} />
+      )}
     </main>
   );
 };

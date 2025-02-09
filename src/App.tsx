@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router';
+import { useSearchParams, Routes, Route, useNavigate } from 'react-router';
 import SearchInput from './components/SearchInput.tsx';
 import SearchResults from './components/SearchResults.tsx';
 import Pagination from './components/Pagination.tsx';
+import DetailsPanel from './components/DetailsPanel.tsx';
 import { stapiService } from './services/stapiService';
 import { SearchItems } from './types/searchItems';
 import { useRestoreSearchQuery } from './hooks/useRestoreSearchQuery';
@@ -23,8 +24,12 @@ interface FormState {
 }
 
 const App: React.FC = () => {
+  const navigate = useNavigate();
+
   const [searchParams, setSearchParams] = useSearchParams();
   const restoredSearchTerm = useRestoreSearchQuery();
+  const detailsId = searchParams.get('details');
+  console.log('🚀 ~ detailsId:', detailsId);
 
   const [searchState, setSearchState] = useState<SearchState>({
     searchTerm: restoredSearchTerm,
@@ -32,9 +37,19 @@ const App: React.FC = () => {
     error: null,
     loading: false,
     shouldCrash: false,
-    currentPage: Number(searchParams.get('page')) || 1,
+    currentPage: 1,
     totalPages: 0,
   });
+
+  useEffect(() => {
+    const pageFromUrl = Number(searchParams.get('page')) || 1;
+    if (searchState.currentPage !== pageFromUrl) {
+      setSearchState((prevState) => ({
+        ...prevState,
+        currentPage: pageFromUrl,
+      }));
+    }
+  }, [searchParams]);
 
   const [formState, setFormState] = useState<FormState>({
     searchInputValue: restoredSearchTerm,
@@ -78,6 +93,25 @@ const App: React.FC = () => {
     fetchData(searchState.searchTerm, searchState.currentPage);
   }, [searchState.searchTerm, searchState.currentPage]);
 
+  const handleItemClick = (id: string) => {
+    console.log('Handling item click, id: ', id);
+    const newParams = { ...Object.fromEntries(searchParams), details: id };
+    console.log('New search params:', newParams);
+
+    setSearchParams(newParams);
+    navigate(`/details/${id}`);
+  };
+
+  useEffect(() => {
+    console.log('Updated searchParams:', searchParams.toString());
+  }, [searchParams]);
+
+  const handleCloseDetails = () => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete('details');
+    setSearchParams(newParams);
+  };
+
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFormState({ searchInputValue: event.target.value });
   };
@@ -109,25 +143,49 @@ const App: React.FC = () => {
   }
 
   return (
-    <>
-      <SearchInput
-        searchTerm={formState.searchInputValue}
-        onSearchChange={handleSearchChange}
-        onSearch={handleSearch}
-      />
-      <SearchResults items={results} loading={loading} error={error} />
-
-      <footer className="footer">
-        <Pagination
-          currentPage={searchState.currentPage}
-          totalPages={searchState.totalPages}
-          onPageChange={handlePageChange}
+    <div className={`container ${detailsId ? 'split-view' : ''}`}>
+      <div className="left-panel" onClick={handleCloseDetails}>
+        <SearchInput
+          searchTerm={formState.searchInputValue}
+          onSearchChange={handleSearchChange}
+          onSearch={handleSearch}
         />
-        <button className="button-danger" onClick={handleCrash}>
-          Crash the whole app!
-        </button>
-      </footer>
-    </>
+
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <SearchResults
+                items={results}
+                loading={loading}
+                error={error}
+                onItemClick={handleItemClick}
+              />
+            }
+          />
+          {detailsId && (
+            <Route
+              path="/details/:id"
+              element={
+                <DetailsPanel id={detailsId} onClose={handleCloseDetails} />
+              }
+            />
+          )}
+        </Routes>
+
+        <footer className="footer">
+          <Pagination
+            currentPage={searchState.currentPage}
+            totalPages={searchState.totalPages}
+            onPageChange={handlePageChange}
+          />
+          <button className="button-danger" onClick={handleCrash}>
+            Crash the whole app!
+          </button>
+        </footer>
+      </div>
+      {detailsId && <div className="details-panel"></div>}
+    </div>
   );
 };
 
