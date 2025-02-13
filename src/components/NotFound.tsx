@@ -1,3 +1,5 @@
+import { Link } from 'react-router';
+
 const NotFound = () => {
   return (
     <>
@@ -5,6 +7,9 @@ const NotFound = () => {
       <h3>But not here</h3>
       <h4>Because nothing is here</h4>
       <h5>Page not found</h5>
+      <Link to="/">
+        <button>Go Home</button>
+      </Link>
     </>
   );
 };

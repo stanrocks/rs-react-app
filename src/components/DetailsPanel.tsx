@@ -6,13 +6,12 @@ import { useSearchParams } from 'react-router';
 const DetailsPanel: React.FC = () => {
   const [details, setDetails] = useState<CharacterDetails | null>(null);
   const [loading, setLoading] = useState(false);
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const itemId = searchParams.get('details');
 
   useEffect(() => {
     if (itemId) {
       setLoading(true);
-      console.log('🚀 ~ useEffect ~ fetching character details');
       stapiService.getCharacterDetails(itemId).then((result) => {
         if (result.error) {
           console.error(
@@ -24,20 +23,40 @@ const DetailsPanel: React.FC = () => {
         }
         setLoading(false);
       });
+    } else {
+      setDetails(null);
     }
   }, [itemId]);
 
+  const handleClose = () => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete('details');
+    setSearchParams(newParams);
+  };
+
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      handleClose();
+    }
+  };
+
+  if (!itemId) return null;
+
   return (
-    <aside className="details-panel">
-      <button className="close-button">Close</button>
-      {loading ? (
-        <span>Loading...</span>
-      ) : details ? (
-        <pre>{JSON.stringify(details, null, 2)}</pre>
-      ) : (
-        <span>No details available.</span>
-      )}
-    </aside>
+    <div className="modal-overlay" onClick={handleOverlayClick}>
+      <aside className="details-panel">
+        <button className="close-button" onClick={handleClose}>
+          Close
+        </button>
+        {loading ? (
+          <span>Loading...</span>
+        ) : details ? (
+          <pre>{JSON.stringify(details, null, 2)}</pre>
+        ) : (
+          <span>No details available.</span>
+        )}
+      </aside>
+    </div>
   );
 };
 

@@ -6,20 +6,35 @@ interface CardProps {
 }
 
 const Card = ({ item }: CardProps) => {
-  const [SearchParams] = useSearchParams();
-  const query = SearchParams.get('query');
-  const page = SearchParams.get('page');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const query = searchParams.get('query');
+  const page = searchParams.get('page');
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setSearchParams({
+      query: query || '',
+      page: page || '',
+      details: item.uid,
+    });
+  };
 
   return (
     <>
       <tr className="card-section">
         <td className="card-section-name">
-          <Link to={`?query=${query}&page=${page}&details=${item.uid}`}>
+          <Link
+            onClick={handleClick}
+            to={`?query=${query}&page=${page}&details=${item.uid}`}
+          >
             {item.name}
           </Link>
         </td>
         <td className="card-section-description">
-          <Link to={`?query=${query}&page=${page}&details=${item.uid}`}>
+          <Link
+            onClick={handleClick}
+            to={`?query=${query}&page=${page}&details=${item.uid}`}
+          >
             {item.description}
           </Link>
         </td>
