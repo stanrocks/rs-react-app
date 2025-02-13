@@ -25,15 +25,12 @@ function buildStapiFetchConfig(
 async function getCharacterDetails(
   uid: string
 ): Promise<Result<CharacterDetails>> {
-  console.log('🚀 ~ Someone called getCharacterDetails!');
-
   try {
     const response = await fetch(`${STAPI_BASE_URL}?uid=${uid}`, {
       method: 'GET',
     });
 
     if (!response.ok) {
-      console.log('HTTP error! Status:', response.status);
       return {
         error: {
           message: `HTTP error! Message: ${response.statusText}`,
@@ -47,7 +44,7 @@ async function getCharacterDetails(
     if (!data.character) {
       return { error: { message: 'Invalid character data from STAPI.' } };
     }
-    console.log('🚀 fetched character details:', data.character);
+
     return { data: data.character };
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -96,7 +93,6 @@ async function searchCharacters(
   try {
     const response = await fetch(url, { method });
     if (!response.ok) {
-      console.log('HTTP error! Status: ', response.status);
       return {
         error: {
           message: `HTTP error! Message: ${response.statusText}`,
