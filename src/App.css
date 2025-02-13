@@ -1,4 +1,5 @@
 #root {
+  position: relative;
   max-width: 800px;
   height: 80vh;
   margin: 0 auto;
@@ -14,6 +15,7 @@
   flex: 2;
   padding: 0.5em;
   font-size: 1.2em;
+  background-color: rgba(255, 255, 255, 0.9);
   border-radius: 8px;
   border: 1px solid transparent;
 }
@@ -31,8 +33,9 @@
 }
 
 .search-results-header {
-  margin: 0;
-  padding: 0.5em;
+  margin-top: 0.5em;
+  margin-bottom: 0;
+
   font-size: 1.5em;
 }
 
@@ -59,12 +62,22 @@
 
 .card-list-body {
   display: block;
-  max-height: 20vh;
+  max-height: 30vh;
   overflow-y: auto;
 }
 
 .card-section {
   display: flex;
+}
+
+.card-section a {
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  transition: color 0.45s;
+}
+
+.card-section a:hover {
+  color: rgba(152, 158, 255, 0.9);
 }
 
 .card-section-name {
@@ -82,6 +95,7 @@
 
 .pagination {
   display: flex;
+  margin-top: 0;
   gap: 0.5em;
   list-style: none;
   flex-wrap: wrap;
@@ -89,42 +103,31 @@
 }
 
 .pagination-item-button.active {
-  background-color: rgba(94, 94, 94, 0.9);
-  color: white;
-}
-
-/* rename: */
-
-.container {
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-}
-
-.left-panel {
-  flex: 1;
-  padding: 10px;
-}
-
-.split-view .left-panel {
-  flex: 0.6;
+  background-color: rgba(255, 255, 255, 0.9);
+  color: rgba(0, 0, 0, 0.9);
 }
 
 .details-panel {
-  flex: 0.4;
-  background: #f8f8f8;
-  padding: 10px;
-  border-left: 1px solid #ccc;
-  position: relative;
+  position: absolute;
+  right: -21em;
+  top: 16em;
+  width: 20em;
+  height: 15em;
+  padding-top: 4em;
+  background-color: rgba(31, 31, 31, 0.5);
+  border-radius: 8px;
+  border: 1px solid transparent;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.details-panel span {
+  display: block;
+  margin-top: 1em;
 }
 
 .close-button {
-  position: absolute;
-  right: 10px;
-  top: 10px;
+  position: sticky;
+  top: -50px;
   cursor: pointer;
-  background: red;
-  color: white;
-  border: none;
-  padding: 5px;
 }

@@ -1,20 +1,25 @@
 import React from 'react';
-import CardList from './CardList';
 import { SearchItems } from '../types/searchItems';
+import { Outlet } from 'react-router';
+import Pagination from './Pagination';
+import CardList from './CardList';
 
 interface SearchResultsProps {
   items: SearchItems;
   loading: boolean;
   error: { message: string; status?: number } | null;
-  className?: string;
-  onItemClick: (id: string) => void;
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
 }
 
 const SearchResult: React.FC<SearchResultsProps> = ({
   items,
   loading,
   error,
-  onItemClick,
+  currentPage,
+  totalPages,
+  onPageChange,
 }) => {
   return (
     <main className="search-results">
@@ -27,7 +32,15 @@ const SearchResult: React.FC<SearchResultsProps> = ({
       )}
       {!loading && !error && items?.length === 0 && <p>No results found</p>}
       {!loading && !error && items?.length > 0 && (
-        <CardList items={items} onClick={onItemClick} />
+        <>
+          <CardList items={items} />
+          <Outlet />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={onPageChange}
+          />
+        </>
       )}
     </main>
   );

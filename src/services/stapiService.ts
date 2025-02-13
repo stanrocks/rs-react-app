@@ -14,7 +14,7 @@ function buildStapiFetchConfig(
   pageNumber: number
 ): [string, string] {
   if (!term.trim()) {
-    return [`${STAPI_BASE_URL}/search?pageNumber=0`, `GET`];
+    return [`${STAPI_BASE_URL}/search?pageNumber=${pageNumber - 1}`, `GET`];
   }
   return [
     `${STAPI_BASE_URL}/search?name=${term.trim()}&pageNumber=${pageNumber - 1}`,

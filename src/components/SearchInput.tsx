@@ -17,20 +17,22 @@ const SearchInput: React.FC<SearchInputProps> = ({
   };
 
   return (
-    <header className="search-header">
-      <h1>Star Trek Characters Search App</h1>
-      <form className="search-header-form" onSubmit={handleSubmit}>
-        <input
-          className="search-header-field"
-          type="text"
-          value={searchTerm}
-          onChange={onSearchChange}
-        />
-        <button className="search-header-button" type="submit">
-          Search
-        </button>
-      </form>
-    </header>
+    <>
+      <header className="search-header">
+        <h1>Star Trek Characters Search App</h1>
+        <form className="search-header-form" onSubmit={handleSubmit}>
+          <input
+            className="search-header-field"
+            type="text"
+            value={searchTerm}
+            onChange={onSearchChange}
+          />
+          <button className="search-header-button" type="submit">
+            Search
+          </button>
+        </form>
+      </header>
+    </>
   );
 };
 

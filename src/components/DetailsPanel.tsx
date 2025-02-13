@@ -1,37 +1,35 @@
 import React, { useEffect, useState } from 'react';
 import { stapiService } from '../services/stapiService';
 import { CharacterDetails } from '../types/stapi';
+import { useSearchParams } from 'react-router';
 
-interface DetailsPanelProps {
-  id: string;
-  onClose: () => void;
-}
-
-const DetailsPanel: React.FC<DetailsPanelProps> = ({ id, onClose }) => {
+const DetailsPanel: React.FC = () => {
   const [details, setDetails] = useState<CharacterDetails | null>(null);
   const [loading, setLoading] = useState(false);
+  const [searchParams] = useSearchParams();
+  const itemId = searchParams.get('details');
 
   useEffect(() => {
-    setLoading(true);
-    console.log('🚀 ~ useEffect ~ Details Panel, id changed:', setLoading);
-    stapiService.getCharacterDetails(id).then((result) => {
-      if (result.error) {
-        console.error(
-          'Error fetching character details:',
-          result.error.message
-        );
-      } else {
-        setDetails(result.data || null);
-      }
-      setLoading(false);
-    });
-  }, [id]);
+    if (itemId) {
+      setLoading(true);
+      console.log('🚀 ~ useEffect ~ fetching character details');
+      stapiService.getCharacterDetails(itemId).then((result) => {
+        if (result.error) {
+          console.error(
+            'Error fetching character details:',
+            result.error.message
+          );
+        } else {
+          setDetails(result.data || null);
+        }
+        setLoading(false);
+      });
+    }
+  }, [itemId]);
 
   return (
-    <div className="details-panel">
-      <button className="close-button" onClick={onClose}>
-        ×
-      </button>
+    <aside className="details-panel">
+      <button className="close-button">Close</button>
       {loading ? (
         <span>Loading...</span>
       ) : details ? (
@@ -39,7 +37,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({ id, onClose }) => {
       ) : (
         <span>No details available.</span>
       )}
-    </div>
+    </aside>
   );
 };
 
