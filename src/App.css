@@ -1,0 +1,145 @@
+#root {
+  position: relative;
+  max-width: 800px;
+  height: 80vh;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.search-header-form {
+  display: flex;
+  gap: 1em;
+}
+
+.search-header-field {
+  flex: 2;
+  padding: 0.5em;
+  font-size: 1.2em;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  border: 1px solid transparent;
+}
+
+.search-header-button {
+  flex: 1;
+  font-size: 1.5em;
+}
+
+.search-results {
+  margin: 1em 0;
+  background-color: rgba(31, 31, 31, 0.5);
+  border-radius: 8px;
+  border: 1px solid transparent;
+}
+
+.search-results-header {
+  margin-top: 0.5em;
+  margin-bottom: 0;
+
+  font-size: 1.5em;
+}
+
+.card-list {
+  width: 100%;
+  padding: 1em;
+}
+
+.card-list-header {
+  background-color: rgba(94, 94, 94, 0.7);
+}
+
+.card-list-header-row {
+  display: flex;
+}
+
+.card-list-header-name {
+  flex: 1;
+}
+
+.card-list-header-description {
+  flex: 1;
+}
+
+.card-list-body {
+  display: block;
+  max-height: 30vh;
+  overflow-y: auto;
+}
+
+.card-section {
+  display: flex;
+}
+
+.card-section a {
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  transition: color 0.45s;
+}
+
+.card-section a:hover {
+  color: rgba(152, 158, 255, 0.9);
+}
+
+.card-section-name {
+  flex: 1;
+}
+
+.card-section-description {
+  flex: 1;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.pagination {
+  display: flex;
+  margin-top: 0;
+  gap: 0.5em;
+  list-style: none;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pagination-item-button.active {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: rgba(0, 0, 0, 0.9);
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.details-panel {
+  position: absolute;
+  right: 4em;
+  width: 30em;
+  max-height: 60vh;
+  padding-top: 4em;
+  background-color: rgba(31, 31, 31, 0.5);
+  border-radius: 8px;
+  border: 1px solid transparent;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.details-panel span {
+  display: block;
+  margin-top: 1em;
+}
+
+.close-button {
+  position: sticky;
+  top: -50px;
+  cursor: pointer;
+}
