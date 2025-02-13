@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import SearchInput from './SearchInput';
 import SearchResults from './SearchResults';
 import Footer from './Footer';
@@ -40,44 +40,41 @@ function Layout() {
     searchInputValue: storedSearchTerm,
   });
 
-  const fetchData = useCallback(
-    (searchTerm: string, page: number) => {
-      setSearchParams({
-        query: searchTerm,
-        page: String(page),
-      });
-      setSearchState((prevState) => ({
-        ...prevState,
-        error: null,
-        loading: true,
-      }));
+  const fetchData = (searchTerm: string, page: number) => {
+    setSearchParams({
+      query: searchTerm,
+      page: String(page),
+    });
+    setSearchState((prevState) => ({
+      ...prevState,
+      error: null,
+      loading: true,
+    }));
 
-      stapiService
-        .searchCharacters(searchTerm, page)
-        .then((apiResult) => {
-          setSearchState((prevState) => ({
-            ...prevState,
-            loading: false,
-            results: apiResult.data || [],
-            error: apiResult.error || null,
-            totalPages: apiResult.totalPages || 0,
-          }));
-        })
-        .catch((error) => {
-          console.error('Fetch error:', error);
-          setSearchState((prevState) => ({
-            ...prevState,
-            loading: false,
-            error: { message: 'Fetch error occurred' },
-          }));
-        });
-    },
-    [setSearchParams]
-  );
+    stapiService
+      .searchCharacters(searchTerm, page)
+      .then((apiResult) => {
+        setSearchState((prevState) => ({
+          ...prevState,
+          loading: false,
+          results: apiResult.data || [],
+          error: apiResult.error || null,
+          totalPages: apiResult.totalPages || 0,
+        }));
+      })
+      .catch((error) => {
+        console.error('Fetch error:', error);
+        setSearchState((prevState) => ({
+          ...prevState,
+          loading: false,
+          error: { message: 'Fetch error occurred' },
+        }));
+      });
+  };
 
   useEffect(() => {
     fetchData(searchState.searchTerm, searchState.currentPage);
-  }, [fetchData, searchState.searchTerm, searchState.currentPage]);
+  }, [searchState.searchTerm, searchState.currentPage]);
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFormState({ searchInputValue: event.target.value });
